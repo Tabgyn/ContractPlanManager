@@ -1,0 +1,36 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: contract-sqlserver
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: YourStrong@Passw0rd
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - contract-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: contract-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_DB: ContractReports
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - contract-network
+
+volumes:
+  sqlserver-data:
+  postgres-data:
+
+networks:
+  contract-network:
+    driver: bridge
