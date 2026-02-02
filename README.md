@@ -41,12 +41,12 @@ Demonstrates senior-level fullstack development with:
 - [x] Project dependencies configured
 - [x] Docker Compose with SQL Server & PostgreSQL
 - [x] NuGet packages installed
+- [x] Domain entities
+- [x] Application services
+- [x] Data access layer
+- [x] REST API controllers
 
 **🚧 In Progress:**
-- [ ] Domain entities
-- [ ] Application services
-- [ ] Data access layer
-- [ ] REST API controllers
 - [ ] Angular frontend
 
 ## 🛠️ Getting Started
@@ -124,5 +124,3 @@ MIT License - See LICENSE file for details
 Tiago Azevedo Borges
 
 ---
-
-**Status:** Phase 1 - Infrastructure Setup ✅ | Next: Domain Layer Development
