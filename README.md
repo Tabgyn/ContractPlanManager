@@ -40,14 +40,24 @@ Demonstrates senior-level fullstack development with:
 - [x] Solution structure with Clean Architecture
 - [x] Project dependencies configured
 - [x] Docker Compose with SQL Server & PostgreSQL
-- [x] NuGet packages installed
-- [x] Domain entities
-- [x] Application services
-- [x] Data access layer
-- [x] REST API controllers
+- [x] Domain entities with business rules
+- [x] Application layer (DTOs, validators, services)
+- [x] Infrastructure layer (EF Core, repositories)
+- [x] Database migrations and seeding
+- [x] RESTful API controllers
+- [x] Swagger/OpenAPI documentation
+- [x] API testing via Swagger UI
 
 **🚧 In Progress:**
 - [ ] Angular frontend
+- [ ] Unit tests
+- [ ] Integration tests
+
+**📋 Planned:**
+- [ ] CI/CD pipeline
+- [ ] Docker compose for full stack
+- [ ] AWS Lambda integration (simulated)
+- [ ] PostgreSQL reporting integration
 
 ## 🛠️ Getting Started
 
@@ -108,6 +118,38 @@ Database credentials (development only):
 - PostgreSQL: `postgres / YourStrong@Passw0rd`
 
 **Note:** Change passwords for production use.
+
+## 🌐 API Endpoints
+
+### Contracts
+- `GET /api/contracts` - Get all contracts
+- `GET /api/contracts/active` - Get active contracts
+- `GET /api/contracts/{id}` - Get contract by ID
+- `GET /api/contracts/by-number/{contractNumber}` - Get contract by number
+- `POST /api/contracts` - Create new contract
+- `PUT /api/contracts/{id}` - Update contract
+- `POST /api/contracts/{id}/terminate` - Terminate contract
+- `POST /api/contracts/{id}/suspend` - Suspend contract
+- `POST /api/contracts/{id}/reactivate` - Reactivate contract
+
+### Payment Plans
+- `GET /api/paymentplans` - Get all payment plans
+- `GET /api/paymentplans/active` - Get active plans
+- `GET /api/paymentplans/{id}` - Get plan by ID
+- `POST /api/paymentplans` - Create new plan
+- `PUT /api/paymentplans/{id}` - Update plan
+- `POST /api/paymentplans/{id}/deactivate` - Deactivate plan
+- `POST /api/paymentplans/{id}/reactivate` - Reactivate plan
+
+### Plan Change Requests
+- `GET /api/planchangerequests/pending` - Get pending requests
+- `GET /api/planchangerequests/{id}` - Get request by ID
+- `GET /api/planchangerequests/contract/{contractId}` - Get requests by contract
+- `POST /api/planchangerequests` - Create change request
+- `POST /api/planchangerequests/{id}/process` - Approve/reject request
+- `POST /api/planchangerequests/{id}/cancel` - Cancel request
+
+**API Documentation:** Available at Swagger UI when running the API (`http://localhost:5190/swagger`)
 
 ## 📝 Development Principles
 
