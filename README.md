@@ -59,6 +59,21 @@ Demonstrates senior-level fullstack development with:
 - [ ] AWS Lambda integration (simulated)
 - [ ] PostgreSQL reporting integration
 
+## 🔄 CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+- ✅ Automated building and testing on every push
+- ✅ Unit and integration test execution
+- ✅ Code coverage reporting
+- ✅ Code quality and security scanning
+- ✅ Docker image building and validation
+- ✅ Dependency vulnerability checking
+
+See [CI/CD Documentation](.github/README.md) for details.
+
+![Build Status](https://github.com/<your-username>/ContractPlanManager/workflows/CI-CD%20Pipeline/badge.svg)
+
 ## 🛠️ Getting Started
 
 ### Prerequisites
