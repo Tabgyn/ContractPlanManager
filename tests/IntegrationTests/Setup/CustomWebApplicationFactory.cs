@@ -58,11 +58,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     private static void SeedTestData(ApplicationDbContext context)
     {
-        // Clear existing data
-        context.Contracts.RemoveRange(context.Contracts);
-        context.PaymentPlans.RemoveRange(context.PaymentPlans);
-        context.PlanChangeRequests.RemoveRange(context.PlanChangeRequests);
-        context.SaveChanges();
+        // Only seed if empty
+        if (context.PaymentPlans.Any())
+            return;
+
+        // Clear existing data (shouldn't be necessary, but safe)
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
 
         // Add test payment plans
         var basicPlan = new Domain.Entities.PaymentPlan(

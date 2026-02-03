@@ -61,10 +61,23 @@ if (app.Environment.IsDevelopment())
 
     try
     {
-        // Apply pending migrations
-        logger.LogInformation("Applying database migrations...");
-        await context.Database.MigrateAsync();
-        logger.LogInformation("Database migrations applied successfully");
+        // Check if using a relational database (not in-memory for tests)
+        var isRelational = context.Database.IsRelational();
+
+        if (isRelational)
+        {
+            // Apply pending migrations for relational databases
+            logger.LogInformation("Applying database migrations...");
+            await context.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully");
+        }
+        else
+        {
+            // For in-memory databases (testing), just ensure created
+            logger.LogInformation("Using in-memory database, ensuring created...");
+            await context.Database.EnsureCreatedAsync();
+            logger.LogInformation("In-memory database created successfully");
+        }
 
         // Seed data
         logger.LogInformation("Seeding database...");
