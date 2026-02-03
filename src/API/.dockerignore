@@ -1,0 +1,15 @@
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/.git
+**/.gitignore
+**/docker-compose*
+**/Dockerfile*
+**/*.md
+**/charts
+**/secrets.dev.yaml
+**/values.dev.yaml
+**/.env
+**/node_modules
+**/npm-debug.log

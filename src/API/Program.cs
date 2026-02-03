@@ -6,6 +6,8 @@ using FluentValidation.AspNetCore;
 
 using Application.Validators;
 
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
@@ -55,12 +57,25 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    // Apply pending migrations
-    await context.Database.EnsureCreatedAsync();
+    try
+    {
+        // Apply pending migrations
+        logger.LogInformation("Applying database migrations...");
+        await context.Database.MigrateAsync();
+        logger.LogInformation("Database migrations applied successfully");
 
-    // Seed data
-    await DbSeeder.SeedAsync(context);
+        // Seed data
+        logger.LogInformation("Seeding database...");
+        await DbSeeder.SeedAsync(context);
+        logger.LogInformation("Database seeded successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating or seeding the database");
+        throw;
+    }
 }
 
 app.Run();

@@ -12,6 +12,12 @@ services:
       - sqlserver-data:/var/opt/mssql
     networks:
       - contract-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Passw0rd' -Q 'SELECT 1' -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
   postgres:
     image: postgres:15-alpine
@@ -26,6 +32,32 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - contract-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: src/API/Dockerfile
+    container_name: contract-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ContractPlanManager;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;Encrypt=False;
+      - ConnectionStrings__ReportsConnection=Host=postgres;Port=5432;Database=ContractReports;Username=postgres;Password=YourStrong@Passw0rd;
+    ports:
+      - "5000:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - contract-network
+    restart: on-failure
 
 volumes:
   sqlserver-data:
