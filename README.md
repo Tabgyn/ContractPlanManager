@@ -72,7 +72,7 @@ This project uses GitHub Actions for continuous integration and deployment:
 
 See [CI/CD Documentation](.github/README.md) for details.
 
-![Build Status](https://github.com/<your-username>/ContractPlanManager/workflows/CI-CD%20Pipeline/badge.svg)
+![Build Status](https://github.com/Tabgyn/ContractPlanManager/workflows/CI-CD%20Pipeline/badge.svg)
 
 ## 📌 Versioning
 
