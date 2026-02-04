@@ -74,6 +74,18 @@ See [CI/CD Documentation](.github/README.md) for details.
 
 ![Build Status](https://github.com/<your-username>/ContractPlanManager/workflows/CI-CD%20Pipeline/badge.svg)
 
+## 📌 Versioning
+
+This project follows [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Incompatible API changes
+- **MINOR**: New functionality (backwards compatible)
+- **PATCH**: Bug fixes (backwards compatible)
+
+**Current Version**: v0.1.0 (Initial MVP)
+
+**Release History**:
+- v0.1.0 - Initial release with backend API, tests, Docker, and CI/CD
+
 ## 🛠️ Getting Started
 
 ### Prerequisites
