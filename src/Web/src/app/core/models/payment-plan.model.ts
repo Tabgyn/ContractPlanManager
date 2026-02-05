@@ -26,8 +26,8 @@ export interface CreatePaymentPlanDto {
     name: string;
     description: string;
     monthlyPrice: number;
-    billingCycle: string;
-    tier: string;
+    billingCycle: BillingCycle;
+    tier: PlanTier;
 }
 
 export interface UpdatePaymentPlanDto {
