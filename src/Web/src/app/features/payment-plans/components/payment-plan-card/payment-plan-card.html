@@ -1,0 +1,47 @@
+<mat-card [class.inactive]="!plan.isActive">
+    <mat-card-header>
+        <mat-card-title>{{ plan.name }}</mat-card-title>
+        <mat-card-subtitle>
+            <mat-chip [color]="getTierColor(plan.tier)" highlighted>
+                {{ plan.tier }}
+            </mat-chip>
+        </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+        <div class="price">
+            <span class="amount">{{ plan.monthlyPrice | currency }}</span>
+            <span class="period">/ {{ plan.billingCycle }}</span>
+        </div>
+
+        <p class="description">{{ plan.description }}</p>
+
+        <div class="status">
+            @if (plan.isActive) {
+            <mat-chip color="primary" highlighted>
+                <mat-icon>check_circle</mat-icon>
+                Active
+            </mat-chip>
+            } @else {
+            <mat-chip>
+                <mat-icon>cancel</mat-icon>
+                Inactive
+            </mat-chip>
+            }
+        </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+        @if (plan.isActive) {
+        <button mat-button color="warn" (click)="onToggleActivation()">
+            <mat-icon>pause</mat-icon>
+            Deactivate
+        </button>
+        } @else {
+        <button mat-button color="primary" (click)="onToggleActivation()">
+            <mat-icon>play_arrow</mat-icon>
+            Reactivate
+        </button>
+        }
+    </mat-card-actions>
+</mat-card>

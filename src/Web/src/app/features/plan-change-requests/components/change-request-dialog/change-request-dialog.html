@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>Process Change Request</h2>
+
+<mat-dialog-content>
+    <div class="request-summary">
+        <p><strong>Contract:</strong> {{ request.contractNumber }}</p>
+        <p><strong>From:</strong> {{ request.fromPlanName }}</p>
+        <p><strong>To:</strong> {{ request.toPlanName }}</p>
+        <p><strong>Requested By:</strong> {{ request.requestedBy }}</p>
+        <p><strong>Requested At:</strong> {{ request.requestedAt | date:'medium' }}</p>
+    </div>
+
+    <form [formGroup]="processForm">
+        <mat-radio-group formControlName="decision" class="decision-group">
+            <mat-radio-button value="approve" color="primary">Approve</mat-radio-button>
+            <mat-radio-button value="reject" color="warn">Reject</mat-radio-button>
+        </mat-radio-group>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Processed By</mat-label>
+            <input matInput formControlName="processedBy" placeholder="Your name or email">
+            @if (processForm.get('processedBy')?.hasError('required')) {
+            <mat-error>Processor name is required</mat-error>
+            }
+        </mat-form-field>
+
+        @if (processForm.get('decision')?.value === 'reject') {
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Rejection Reason</mat-label>
+            <textarea matInput formControlName="rejectionReason" rows="3"
+                placeholder="Please provide a reason for rejection"></textarea>
+            @if (processForm.get('rejectionReason')?.hasError('required')) {
+            <mat-error>Rejection reason is required</mat-error>
+            }
+        </mat-form-field>
+        }
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading()">Cancel</button>
+    <button mat-raised-button [color]="processForm.get('decision')?.value === 'approve' ? 'primary' : 'warn'"
+        (click)="onSubmit()" [disabled]="!processForm.valid || loading()">
+        @if (loading()) {
+        Processing...
+        } @else {
+        @if (processForm.get('decision')?.value === 'approve') {
+        Approve Request
+        } @else {
+        Reject Request
+        }
+        }
+    </button>
+</mat-dialog-actions>

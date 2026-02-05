@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>Create New Contract</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="contractForm">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contract Number</mat-label>
+            <input matInput formControlName="contractNumber" placeholder="CNT-2024-001">
+            <mat-hint>Use format: CNT-YYYY-XXX (uppercase, numbers, hyphens)</mat-hint>
+            @if (contractForm.get('contractNumber')?.hasError('required')) {
+            <mat-error>Contract number is required</mat-error>
+            }
+            @if (contractForm.get('contractNumber')?.hasError('pattern')) {
+            <mat-error>Invalid format (use A-Z, 0-9, and hyphens only)</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Customer Name</mat-label>
+            <input matInput formControlName="customerName" placeholder="John Doe">
+            @if (contractForm.get('customerName')?.hasError('required')) {
+            <mat-error>Customer name is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Customer Email</mat-label>
+            <input matInput type="email" formControlName="customerEmail" placeholder="john@example.com">
+            @if (contractForm.get('customerEmail')?.hasError('required')) {
+            <mat-error>Email is required</mat-error>
+            }
+            @if (contractForm.get('customerEmail')?.hasError('email')) {
+            <mat-error>Invalid email format</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="startDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Initial Payment Plan</mat-label>
+            <mat-select formControlName="initialPaymentPlanId">
+                @for (plan of paymentPlans(); track plan.id) {
+                <mat-option [value]="plan.id">
+                    {{ plan.name }} - {{ plan.monthlyPrice | currency }}/month
+                </mat-option>
+                }
+            </mat-select>
+            @if (contractForm.get('initialPaymentPlanId')?.hasError('required')) {
+            <mat-error>Payment plan is required</mat-error>
+            }
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!contractForm.valid || loading()">
+        @if (loading()) {
+        Creating...
+        } @else {
+        Create Contract
+        }
+    </button>
+</mat-dialog-actions>

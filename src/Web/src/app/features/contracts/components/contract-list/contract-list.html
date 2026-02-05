@@ -1,0 +1,95 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>Contracts</mat-card-title>
+        <div class="header-actions">
+            <button mat-raised-button color="primary" (click)="openCreateDialog()">
+                <mat-icon>add</mat-icon>
+                New Contract
+            </button>
+        </div>
+    </mat-card-header>
+
+    <mat-card-content>
+        @if (loading()) {
+        <div class="loading-container">
+            <mat-spinner></mat-spinner>
+        </div>
+        } @else {
+        <table mat-table [dataSource]="contracts()" class="contracts-table">
+            <!-- Contract Number Column -->
+            <ng-container matColumnDef="contractNumber">
+                <th mat-header-cell *matHeaderCellDef>Contract #</th>
+                <td mat-cell *matCellDef="let contract">{{ contract.contractNumber }}</td>
+            </ng-container>
+
+            <!-- Customer Name Column -->
+            <ng-container matColumnDef="customerName">
+                <th mat-header-cell *matHeaderCellDef>Customer</th>
+                <td mat-cell *matCellDef="let contract">{{ contract.customerName }}</td>
+            </ng-container>
+
+            <!-- Email Column -->
+            <ng-container matColumnDef="customerEmail">
+                <th mat-header-cell *matHeaderCellDef>Email</th>
+                <td mat-cell *matCellDef="let contract">{{ contract.customerEmail }}</td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let contract">
+                    <mat-chip [color]="getStatusColor(contract.status)" highlighted>
+                        {{ contract.status }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <!-- Current Plan Column -->
+            <ng-container matColumnDef="currentPlan">
+                <th mat-header-cell *matHeaderCellDef>Current Plan</th>
+                <td mat-cell *matCellDef="let contract">{{ contract.currentPaymentPlanName }}</td>
+            </ng-container>
+
+            <!-- Monthly Price Column -->
+            <ng-container matColumnDef="monthlyPrice">
+                <th mat-header-cell *matHeaderCellDef>Monthly Price</th>
+                <td mat-cell *matCellDef="let contract">
+                    {{ contract.currentMonthlyPrice | currency }}
+                </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let contract">
+                    <button mat-icon-button (click)="viewDetails(contract)" matTooltip="View Details">
+                        <mat-icon>visibility</mat-icon>
+                    </button>
+                    @if (contract.status === 'Active') {
+                    <button mat-icon-button (click)="suspend(contract, $event)" matTooltip="Suspend" color="warn">
+                        <mat-icon>pause</mat-icon>
+                    </button>
+                    }
+                    @if (contract.status === 'Suspended') {
+                    <button mat-icon-button (click)="reactivate(contract, $event)" matTooltip="Reactivate"
+                        color="primary">
+                        <mat-icon>play_arrow</mat-icon>
+                    </button>
+                    }
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row"
+                (click)="viewDetails(row)"></tr>
+        </table>
+
+        @if (contracts().length === 0) {
+        <div class="no-data">
+            <mat-icon>inbox</mat-icon>
+            <p>No contracts found</p>
+        </div>
+        }
+        }
+    </mat-card-content>
+</mat-card>

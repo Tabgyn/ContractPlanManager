@@ -1,30 +1,13 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ContractService, PaymentPlanService } from './core/services';
+import { Component, signal } from '@angular/core';
+import { Layout } from './shared/components/layout/layout';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
+  imports: [Layout],
+  template: '<app-layout></app-layout>',
   styleUrl: './app.scss'
 })
-export class App implements OnInit {
-  protected readonly title = signal('Web');
-
-  private contractService = inject(ContractService);
-  private planService = inject(PaymentPlanService);
-
-  ngOnInit() {
-    // Test API connection
-    this.contractService.getAll().subscribe({
-      next: (contracts) => console.log('Contracts:', contracts),
-      error: (error) => console.error('Error loading contracts:', error)
-    });
-
-    this.planService.getAll().subscribe({
-      next: (plans) => console.log('Payment Plans:', plans),
-      error: (error) => console.error('Error loading plans:', error)
-    });
-  }
+export class App {
+  protected readonly title = signal('Contract Plan Manager');
 }

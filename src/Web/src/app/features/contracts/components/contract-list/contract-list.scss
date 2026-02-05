@@ -1,0 +1,44 @@
+mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.header-actions {
+    margin-left: auto;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.contracts-table {
+    width: 100%;
+
+    th {
+        font-weight: 600;
+    }
+}
+
+.clickable-row {
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: rgba(0, 0, 0, 0.54);
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+    }
+}
