@@ -1,1 +1,180 @@
-<p>contract-detail works!</p>
+@if (loading()) {
+<div class="loading-container">
+    <mat-spinner></mat-spinner>
+</div>
+} @else if (contract()) {
+<div class="detail-container">
+    <!-- Header -->
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Contract Details</h1>
+    </div>
+
+    <!-- Contract Information -->
+    <mat-card class="info-card">
+        <mat-card-header>
+            <mat-card-title>
+                {{ contract()!.contractNumber }}
+                <mat-chip [color]="getStatusColor(contract()!.status)" highlighted>
+                    {{ contract()!.status }}
+                </mat-chip>
+            </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="info-grid">
+                <div class="info-item">
+                    <mat-icon>person</mat-icon>
+                    <div>
+                        <div class="label">Customer</div>
+                        <div class="value">{{ contract()!.customerName }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <mat-icon>email</mat-icon>
+                    <div>
+                        <div class="label">Email</div>
+                        <div class="value">{{ contract()!.customerEmail }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <mat-icon>event</mat-icon>
+                    <div>
+                        <div class="label">Start Date</div>
+                        <div class="value">{{ contract()!.startDate | date:'mediumDate' }}</div>
+                    </div>
+                </div>
+
+                @if (contract()!.endDate) {
+                <div class="info-item">
+                    <mat-icon>event_busy</mat-icon>
+                    <div>
+                        <div class="label">End Date</div>
+                        <div class="value">{{ contract()!.endDate | date:'mediumDate' }}</div>
+                    </div>
+                </div>
+                }
+
+                <div class="info-item">
+                    <mat-icon>schedule</mat-icon>
+                    <div>
+                        <div class="label">Created</div>
+                        <div class="value">{{ contract()!.createdAt | date:'short' }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <mat-icon>update</mat-icon>
+                    <div>
+                        <div class="label">Last Updated</div>
+                        <div class="value">{{ contract()!.updatedAt | date:'short' }}</div>
+                    </div>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Current Plan -->
+    <mat-card class="plan-card">
+        <mat-card-header>
+            <mat-card-title>Current Payment Plan</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="plan-info">
+                <div class="plan-name">{{ contract()!.currentPaymentPlanName }}</div>
+                <div class="plan-price">{{ contract()!.currentMonthlyPrice | currency }}/month</div>
+            </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+            @if (contract()!.status === 'Active') {
+            <button mat-raised-button color="primary" (click)="requestPlanChange()">
+                <mat-icon>swap_horiz</mat-icon>
+                Change Plan
+            </button>
+            }
+        </mat-card-actions>
+    </mat-card>
+
+    <!-- Change Request History -->
+    <mat-card class="history-card">
+        <mat-card-header>
+            <mat-card-title>Plan Change History</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            @if (changeRequests().length > 0) {
+            <mat-list>
+                @for (request of changeRequests(); track request.id) {
+                <mat-list-item>
+                    <mat-icon matListItemIcon>
+                        @if (request.isUpgrade) {
+                        trending_up
+                        } @else {
+                        trending_down
+                        }
+                    </mat-icon>
+                    <div matListItemTitle>
+                        {{ request.fromPlanName }} → {{ request.toPlanName }}
+                    </div>
+                    <div matListItemLine>
+                        Requested by {{ request.requestedBy }} on {{ request.requestedAt | date:'short' }}
+                    </div>
+                    <mat-chip matListItemMeta [color]="getRequestStatusColor(request.status)" highlighted>
+                        {{ request.status }}
+                    </mat-chip>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+                }
+            </mat-list>
+            } @else {
+            <div class="no-history">
+                <mat-icon>history</mat-icon>
+                <p>No change requests yet</p>
+            </div>
+            }
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Actions -->
+    <mat-card class="actions-card">
+        <mat-card-header>
+            <mat-card-title>Contract Actions</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="action-buttons">
+                @if (contract()!.status === 'Active') {
+                <button mat-raised-button color="warn" (click)="suspend()">
+                    <mat-icon>pause</mat-icon>
+                    Suspend Contract
+                </button>
+                <button mat-raised-button color="accent" (click)="terminate()">
+                    <mat-icon>cancel</mat-icon>
+                    Terminate Contract
+                </button>
+                }
+
+                @if (contract()!.status === 'Suspended') {
+                <button mat-raised-button color="primary" (click)="reactivate()">
+                    <mat-icon>play_arrow</mat-icon>
+                    Reactivate Contract
+                </button>
+                }
+
+                @if (contract()!.status === 'Terminated') {
+                <div class="terminated-message">
+                    <mat-icon>info</mat-icon>
+                    <span>This contract has been terminated and cannot be modified.</span>
+                </div>
+                }
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>
+}

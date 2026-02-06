@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>Request Plan Change</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="requestForm">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>New Payment Plan</mat-label>
+            <mat-select formControlName="toPlanId">
+                @for (plan of paymentPlans(); track plan.id) {
+                <mat-option [value]="plan.id">
+                    {{ plan.name }} ({{ plan.tier }}) - {{ plan.monthlyPrice | currency }}/month
+                </mat-option>
+                }
+            </mat-select>
+            @if (requestForm.get('toPlanId')?.hasError('required')) {
+            <mat-error>Payment plan is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Requested By (Email)</mat-label>
+            <input matInput type="email" formControlName="requestedBy" placeholder="your.email@example.com">
+            @if (requestForm.get('requestedBy')?.hasError('required')) {
+            <mat-error>Email is required</mat-error>
+            }
+            @if (requestForm.get('requestedBy')?.hasError('email')) {
+            <mat-error>Invalid email format</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Effective Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="effectiveDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-hint>When should the plan change take effect?</mat-hint>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!requestForm.valid || loading()">
+        @if (loading()) {
+        Submitting...
+        } @else {
+        Submit Request
+        }
+    </button>
+</mat-dialog-actions>
