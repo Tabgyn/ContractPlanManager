@@ -85,7 +85,7 @@ Demonstrates senior-level fullstack development with:
 - [x] Integration tests with real API
 - [x] Docker containerization
 - [x] CI/CD pipeline with GitHub Actions
-- [x] Angular 19 frontend with Material Design
+- [x] Angular 21 frontend with Material Design
 - [x] Contract management UI
 - [x] Payment plan management UI
 - [x] Plan change request workflow
@@ -240,7 +240,7 @@ ContractPlanManager/
 │   ├── Application/         # DTOs, validators, services
 │   ├── Infrastructure/      # EF Core, repositories, data access
 │   ├── API/                 # Controllers, middleware, Swagger
-│   └── Web/                 # Angular 19 SPA
+│   └── Web/                 # Angular 21 SPA
 │       ├── core/            # Services, models, interceptors
 │       ├── features/        # Feature modules (contracts, plans, requests)
 │       └── shared/          # Shared components, layout
