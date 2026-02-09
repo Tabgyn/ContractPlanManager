@@ -8,6 +8,8 @@ using Application.Validators;
 
 using Microsoft.EntityFrameworkCore;
 
+using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
@@ -20,9 +22,38 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateContractValidator>();
 // Add Infrastructure services (DbContext, Repositories, Services)
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Add Swagger/OpenAPI
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Add OpenAPI with Scalar
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info = new()
+        {
+            Title = "Contract Plan Manager API",
+            Version = "v1.0.0",
+            Description = """
+                RESTful API for managing contract payment plan modifications.
+                
+                **Features:**
+                - Contract management (CRUD operations)
+                - Payment plan management
+                - Plan change request workflow
+                
+                **Architecture:**
+                - Clean Architecture with DDD
+                - .NET 10.0
+                - Entity Framework Core
+                - SQL Server (primary) + PostgreSQL (reporting)
+                """,
+            Contact = new()
+            {
+                Name = "Tiago Azevedo Borges",
+                Url = new Uri("https://github.com/Tabgyn/ContractPlanManager")
+            }
+        };
+        return Task.CompletedTask;
+    });
+});
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -40,8 +71,14 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Contract Plan Manager API v1"));
+    app.MapOpenApi();
+    app.MapScalarApiReference("/docs", options =>
+    {
+        options
+            .WithTitle("Contract Plan Manager API")
+            .WithTheme(ScalarTheme.Default)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    });
 }
 
 app.UseHttpsRedirection();

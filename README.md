@@ -36,7 +36,7 @@ Demonstrates senior-level fullstack development with:
 │   .NET 10.0 Web API         │
 │   - RESTful Endpoints       │
 │   - FluentValidation        │
-│   - Swagger/OpenAPI         │
+│   - Scalar/OpenAPI         │
 └──────────────┬──────────────┘
                │
        ┌───────┴────────┐
@@ -56,7 +56,6 @@ Demonstrates senior-level fullstack development with:
 - **PostgreSQL** - Reporting and analytics ready
 - **FluentValidation** - Input validation
 - **xUnit** - Unit testing
-- **FluentAssertions** - Readable test assertions
 - **Moq** - Mocking framework
 
 ### Frontend (20%)
@@ -152,7 +151,7 @@ npm start
 
 **4. Access the application**
 - **Frontend**: http://localhost:4200
-- **API Swagger**: http://localhost:5000
+- **API Docs (Scalar)**: http://localhost:5000/docs
 - **API Base**: http://localhost:5000/api
 
 ### Local Development (without Docker)
@@ -230,7 +229,7 @@ See [CI/CD Documentation](.github/CI-CD.md) for details.
 - `POST /api/planchangerequests/{id}/process` - Approve/reject
 - `POST /api/planchangerequests/{id}/cancel` - Cancel request
 
-**Full API Documentation**: http://localhost:5000/swagger
+**Full API Documentation**: http://localhost:5000/doocs
 
 ## 📁 Project Structure
 ```
@@ -239,7 +238,7 @@ ContractPlanManager/
 │   ├── Domain/              # Business entities, enums, interfaces
 │   ├── Application/         # DTOs, validators, services
 │   ├── Infrastructure/      # EF Core, repositories, data access
-│   ├── API/                 # Controllers, middleware, Swagger
+│   ├── API/                 # Controllers, middleware, Scalar
 │   └── Web/                 # Angular 21 SPA
 │       ├── core/            # Services, models, interceptors
 │       ├── features/        # Feature modules (contracts, plans, requests)
