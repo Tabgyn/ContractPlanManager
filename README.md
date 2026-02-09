@@ -2,7 +2,7 @@
 
 Enterprise-grade fullstack application for managing contract payment plan modifications.
 
-![Build Status](https://github.com/Tabgyn/ContractPlanManager/workflows/CI-CD%20Pipeline/badge.svg)
+![Build Status](https://github.com/Tabgyn/ContractPlanManager/actions/workflows/ci-cd.yml/badge.svg?branch=main)
 
 ## 🎯 Purpose
 
