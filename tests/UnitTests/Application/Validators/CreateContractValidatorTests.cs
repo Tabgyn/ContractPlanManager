@@ -1,9 +1,9 @@
 namespace UnitTests.Application.Validators;
 
+using FluentValidation.TestHelper;
+
 using global::Application.DTOs.Contract;
 using global::Application.Validators;
-
-using FluentValidation.TestHelper;
 
 using Xunit;
 

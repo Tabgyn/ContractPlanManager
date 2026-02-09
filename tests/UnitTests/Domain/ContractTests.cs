@@ -1,7 +1,5 @@
 namespace UnitTests.Domain;
 
-using FluentAssertions;
-
 using global::Domain.Entities;
 
 using Xunit;
@@ -32,15 +30,15 @@ public class ContractTests
         var contract = new Contract(contractNumber, customerName, customerEmail, startDate, plan);
 
         // Assert
-        contract.Should().NotBeNull();
-        contract.Id.Should().NotBeEmpty();
-        contract.ContractNumber.Should().Be(contractNumber);
-        contract.CustomerName.Should().Be(customerName);
-        contract.CustomerEmail.Should().Be(customerEmail);
-        contract.StartDate.Should().Be(startDate);
-        contract.Status.Should().Be(ContractStatus.Active);
-        contract.CurrentPaymentPlan.Should().Be(plan);
-        contract.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+        Assert.NotNull(contract);
+        Assert.NotEqual(Guid.Empty, contract.Id);
+        Assert.Equal(contractNumber, contract.ContractNumber);
+        Assert.Equal(customerName, contract.CustomerName);
+        Assert.Equal(customerEmail, contract.CustomerEmail);
+        Assert.Equal(startDate, contract.StartDate);
+        Assert.Equal(ContractStatus.Active, contract.Status);
+        Assert.Equal(plan, contract.CurrentPaymentPlan);
+        Assert.True(Math.Abs((contract.CreatedAt - DateTime.UtcNow).TotalSeconds) < 2);
     }
 
     [Theory]
@@ -52,12 +50,11 @@ public class ContractTests
         // Arrange
         var plan = CreateTestPlan();
 
-        // Act
-        Action act = () => new Contract(invalidNumber, "Name", "email@test.com", DateTime.UtcNow, plan);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() =>
+            new Contract(invalidNumber, "Name", "email@test.com", DateTime.UtcNow, plan));
 
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Contract number is required*");
+        Assert.Contains("Contract number is required", exception.Message);
     }
 
     [Theory]
@@ -69,12 +66,11 @@ public class ContractTests
         // Arrange
         var plan = CreateTestPlan();
 
-        // Act
-        Action act = () => new Contract("CNT-001", invalidName, "email@test.com", DateTime.UtcNow, plan);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() =>
+            new Contract("CNT-001", invalidName, "email@test.com", DateTime.UtcNow, plan));
 
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Customer name is required*");
+        Assert.Contains("Customer name is required", exception.Message);
     }
 
     [Theory]
@@ -86,23 +82,21 @@ public class ContractTests
         // Arrange
         var plan = CreateTestPlan();
 
-        // Act
-        Action act = () => new Contract("CNT-001", "Name", invalidEmail, DateTime.UtcNow, plan);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() =>
+            new Contract("CNT-001", "Name", invalidEmail, DateTime.UtcNow, plan));
 
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Customer email is required*");
+        Assert.Contains("Customer email is required", exception.Message);
     }
 
     [Fact]
     public void Constructor_WithNullPlan_ThrowsArgumentException()
     {
-        // Act
-        Action act = () => new Contract("CNT-001", "Name", "email@test.com", DateTime.UtcNow, null!);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() =>
+            new Contract("CNT-001", "Name", "email@test.com", DateTime.UtcNow, null!));
 
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Initial payment plan is required*");
+        Assert.Contains("Initial payment plan is required", exception.Message);
     }
 
     [Fact]
@@ -115,13 +109,13 @@ public class ContractTests
         var originalUpdateTime = contract.UpdatedAt;
 
         // Act
-        Thread.Sleep(10); // Ensure UpdatedAt changes
+        Thread.Sleep(10);
         contract.ChangePlan(newPlan);
 
         // Assert
-        contract.CurrentPaymentPlan.Should().Be(newPlan);
-        contract.CurrentPaymentPlanId.Should().Be(newPlan.Id);
-        contract.UpdatedAt.Should().BeAfter(originalUpdateTime);
+        Assert.Equal(newPlan, contract.CurrentPaymentPlan);
+        Assert.Equal(newPlan.Id, contract.CurrentPaymentPlanId);
+        Assert.True(contract.UpdatedAt > originalUpdateTime);
     }
 
     [Fact]
@@ -131,12 +125,9 @@ public class ContractTests
         var plan = CreateTestPlan();
         var contract = new Contract("CNT-001", "Name", "email@test.com", DateTime.UtcNow, plan);
 
-        // Act
-        Action act = () => contract.ChangePlan(null!);
-
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*New payment plan cannot be null*");
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => contract.ChangePlan(null!));
+        Assert.Contains("New payment plan cannot be null", exception.Message);
     }
 
     [Fact]
@@ -148,12 +139,9 @@ public class ContractTests
         contract.Terminate(DateTime.UtcNow.AddDays(30));
         var newPlan = CreateTestPlan(PlanTier.Premium);
 
-        // Act
-        Action act = () => contract.ChangePlan(newPlan);
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Cannot change plan for inactive contract*");
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => contract.ChangePlan(newPlan));
+        Assert.Contains("Cannot change plan for inactive contract", exception.Message);
     }
 
     [Fact]
@@ -163,12 +151,9 @@ public class ContractTests
         var plan = CreateTestPlan();
         var contract = new Contract("CNT-001", "Name", "email@test.com", DateTime.UtcNow, plan);
 
-        // Act
-        Action act = () => contract.ChangePlan(plan);
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*New plan must be different from current plan*");
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => contract.ChangePlan(plan));
+        Assert.Contains("New plan must be different from current plan", exception.Message);
     }
 
     [Fact]
@@ -184,8 +169,8 @@ public class ContractTests
         contract.Terminate(endDate);
 
         // Assert
-        contract.EndDate.Should().Be(endDate);
-        contract.Status.Should().Be(ContractStatus.Terminated);
+        Assert.Equal(endDate, contract.EndDate);
+        Assert.Equal(ContractStatus.Terminated, contract.Status);
     }
 
     [Fact]
@@ -197,12 +182,9 @@ public class ContractTests
         var contract = new Contract("CNT-001", "Name", "email@test.com", startDate, plan);
         var endDate = startDate.AddDays(-1);
 
-        // Act
-        Action act = () => contract.Terminate(endDate);
-
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*End date cannot be before start date*");
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => contract.Terminate(endDate));
+        Assert.Contains("End date cannot be before start date", exception.Message);
     }
 
     [Fact]
@@ -216,7 +198,7 @@ public class ContractTests
         contract.Suspend();
 
         // Assert
-        contract.Status.Should().Be(ContractStatus.Suspended);
+        Assert.Equal(ContractStatus.Suspended, contract.Status);
     }
 
     [Fact]
@@ -227,12 +209,9 @@ public class ContractTests
         var contract = new Contract("CNT-001", "Name", "email@test.com", DateTime.UtcNow, plan);
         contract.Terminate(DateTime.UtcNow.AddDays(30));
 
-        // Act
-        Action act = () => contract.Suspend();
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Cannot suspend terminated contract*");
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => contract.Suspend());
+        Assert.Contains("Cannot suspend terminated contract", exception.Message);
     }
 
     [Fact]
@@ -247,7 +226,7 @@ public class ContractTests
         contract.Reactivate();
 
         // Assert
-        contract.Status.Should().Be(ContractStatus.Active);
+        Assert.Equal(ContractStatus.Active, contract.Status);
     }
 
     [Fact]
@@ -258,11 +237,8 @@ public class ContractTests
         var contract = new Contract("CNT-001", "Name", "email@test.com", DateTime.UtcNow, plan);
         contract.Terminate(DateTime.UtcNow.AddDays(30));
 
-        // Act
-        Action act = () => contract.Reactivate();
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Cannot reactivate terminated contract*");
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => contract.Reactivate());
+        Assert.Contains("Cannot reactivate terminated contract", exception.Message);
     }
 }

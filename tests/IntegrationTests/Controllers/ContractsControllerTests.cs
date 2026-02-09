@@ -7,8 +7,6 @@ using Application.DTOs.Contract;
 
 using API.Models;
 
-using FluentAssertions;
-
 using IntegrationTests.Setup;
 
 using Xunit;
@@ -29,18 +27,18 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         var response = await _client.GetAsync("/api/contracts");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<ContractDto>>>();
-        result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
-        result.Data.Should().NotBeEmpty();
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.NotEmpty(result.Data);
     }
 
     [Fact]
     public async Task GetById_WithExistingId_ReturnsContract()
     {
-        // Arrange - First get all contracts to get a valid ID
+        // Arrange
         var allResponse = await _client.GetAsync("/api/contracts");
         var allResult = await allResponse.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<ContractDto>>>();
         var existingId = allResult!.Data!.First().Id;
@@ -49,13 +47,13 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         var response = await _client.GetAsync($"/api/contracts/{existingId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<ContractDto>>();
-        result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Id.Should().Be(existingId);
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Equal(existingId, result.Data.Id);
     }
 
     [Fact]
@@ -68,13 +66,13 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         var response = await _client.GetAsync($"/api/contracts/{nonExistingId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
     public async Task Create_WithValidData_CreatesContract()
     {
-        // Arrange - Get a valid payment plan ID
+        // Arrange
         var plansResponse = await _client.GetAsync("/api/paymentplans");
         var plansResult = await plansResponse.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<Application.DTOs.PaymentPlan.PaymentPlanDto>>>();
         var planId = plansResult!.Data!.First().Id;
@@ -92,20 +90,20 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         var response = await _client.PostAsJsonAsync("/api/contracts", createDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<ContractDto>>();
-        result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.ContractNumber.Should().Be("INT-TEST-001");
-        result.Data.CustomerName.Should().Be("Integration Test Customer");
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Equal("INT-TEST-001", result.Data.ContractNumber);
+        Assert.Equal("Integration Test Customer", result.Data.CustomerName);
     }
 
     [Fact]
     public async Task Create_WithInvalidData_ReturnsBadRequest()
     {
-        // Arrange - Invalid email
+        // Arrange
         var plansResponse = await _client.GetAsync("/api/paymentplans");
         var plansResult = await plansResponse.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<Application.DTOs.PaymentPlan.PaymentPlanDto>>>();
         var planId = plansResult!.Data!.First().Id;
@@ -114,7 +112,7 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         {
             ContractNumber = "INT-TEST-002",
             CustomerName = "Test",
-            CustomerEmail = "invalid-email", // Invalid email format
+            CustomerEmail = "invalid-email",
             StartDate = DateTime.Today,
             InitialPaymentPlanId = planId
         };
@@ -123,13 +121,13 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         var response = await _client.PostAsJsonAsync("/api/contracts", createDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
     public async Task Suspend_ExistingContract_SuspendsSuccessfully()
     {
-        // Arrange - Get existing contract
+        // Arrange
         var allResponse = await _client.GetAsync("/api/contracts");
         var allResult = await allResponse.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<ContractDto>>>();
         var contractId = allResult!.Data!.First().Id;
@@ -138,26 +136,26 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         var response = await _client.PostAsync($"/api/contracts/{contractId}/suspend", null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
-        result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
-        result.Data.Should().BeTrue();
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.True(result.Data);
 
-        // Verify the contract is suspended
+        // Verify
         var getResponse = await _client.GetAsync($"/api/contracts/{contractId}");
         var getResult = await getResponse.Content.ReadFromJsonAsync<ApiResponse<ContractDto>>();
-        getResult!.Data!.Status.Should().Be("Suspended");
+        Assert.Equal("Suspended", getResult!.Data!.Status);
     }
 
     [Fact]
     public async Task Reactivate_SuspendedContract_ReactivatesSuccessfully()
     {
-        // Arrange - Get existing contract and suspend it
+        // Arrange
         var allResponse = await _client.GetAsync("/api/contracts");
         var allResult = await allResponse.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<ContractDto>>>();
-        var contractId = allResult!.Data!.Last().Id; // Use different contract
+        var contractId = allResult!.Data!.Last().Id;
 
         await _client.PostAsync($"/api/contracts/{contractId}/suspend", null);
 
@@ -165,11 +163,11 @@ public class ContractsControllerTests : IClassFixture<CustomWebApplicationFactor
         var response = await _client.PostAsync($"/api/contracts/{contractId}/reactivate", null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        // Verify the contract is active
+        // Verify
         var getResponse = await _client.GetAsync($"/api/contracts/{contractId}");
         var getResult = await getResponse.Content.ReadFromJsonAsync<ApiResponse<ContractDto>>();
-        getResult!.Data!.Status.Should().Be("Active");
+        Assert.Equal("Active", getResult!.Data!.Status);
     }
 }

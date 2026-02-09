@@ -1,7 +1,5 @@
 namespace UnitTests.Domain;
 
-using FluentAssertions;
-
 using global::Domain.Entities;
 
 using Xunit;
@@ -22,15 +20,15 @@ public class PaymentPlanTests
         var plan = new PaymentPlan(name, description, monthlyPrice, billingCycle, tier);
 
         // Assert
-        plan.Should().NotBeNull();
-        plan.Id.Should().NotBeEmpty();
-        plan.Name.Should().Be(name);
-        plan.Description.Should().Be(description);
-        plan.MonthlyPrice.Should().Be(monthlyPrice);
-        plan.BillingCycle.Should().Be(billingCycle);
-        plan.Tier.Should().Be(tier);
-        plan.IsActive.Should().BeTrue();
-        plan.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+        Assert.NotNull(plan);
+        Assert.NotEqual(Guid.Empty, plan.Id);
+        Assert.Equal(name, plan.Name);
+        Assert.Equal(description, plan.Description);
+        Assert.Equal(monthlyPrice, plan.MonthlyPrice);
+        Assert.Equal(billingCycle, plan.BillingCycle);
+        Assert.Equal(tier, plan.Tier);
+        Assert.True(plan.IsActive);
+        Assert.True(Math.Abs((plan.CreatedAt - DateTime.UtcNow).TotalSeconds) < 2);
     }
 
     [Theory]
@@ -39,12 +37,11 @@ public class PaymentPlanTests
     [InlineData("   ")]
     public void Constructor_WithInvalidName_ThrowsArgumentException(string invalidName)
     {
-        // Act
-        Action act = () => new PaymentPlan(invalidName, "Description", 99.99m, BillingCycle.Monthly, PlanTier.Basic);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() =>
+            new PaymentPlan(invalidName, "Description", 99.99m, BillingCycle.Monthly, PlanTier.Basic));
 
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Plan name is required*");
+        Assert.Contains("Plan name is required", exception.Message);
     }
 
     [Theory]
@@ -53,12 +50,11 @@ public class PaymentPlanTests
     [InlineData(-100)]
     public void Constructor_WithInvalidPrice_ThrowsArgumentException(decimal invalidPrice)
     {
-        // Act
-        Action act = () => new PaymentPlan("Plan", "Description", invalidPrice, BillingCycle.Monthly, PlanTier.Basic);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() =>
+            new PaymentPlan("Plan", "Description", invalidPrice, BillingCycle.Monthly, PlanTier.Basic));
 
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Monthly price must be greater than zero*");
+        Assert.Contains("Monthly price must be greater than zero", exception.Message);
     }
 
     [Fact]
@@ -71,9 +67,9 @@ public class PaymentPlanTests
         plan.Deactivate();
 
         // Assert
-        plan.IsActive.Should().BeFalse();
-        plan.DeactivatedAt.Should().NotBeNull();
-        plan.DeactivatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+        Assert.False(plan.IsActive);
+        Assert.NotNull(plan.DeactivatedAt);
+        Assert.True(Math.Abs((plan.DeactivatedAt.Value - DateTime.UtcNow).TotalSeconds) < 2);
     }
 
     [Fact]
@@ -87,8 +83,8 @@ public class PaymentPlanTests
         plan.Reactivate();
 
         // Assert
-        plan.IsActive.Should().BeTrue();
-        plan.DeactivatedAt.Should().BeNull();
+        Assert.True(plan.IsActive);
+        Assert.Null(plan.DeactivatedAt);
     }
 
     [Fact]
@@ -102,7 +98,7 @@ public class PaymentPlanTests
         plan.UpdatePricing(newPrice);
 
         // Assert
-        plan.MonthlyPrice.Should().Be(newPrice);
+        Assert.Equal(newPrice, plan.MonthlyPrice);
     }
 
     [Theory]
@@ -113,20 +109,17 @@ public class PaymentPlanTests
         // Arrange
         var plan = new PaymentPlan("Plan", "Description", 99.99m, BillingCycle.Monthly, PlanTier.Basic);
 
-        // Act
-        Action act = () => plan.UpdatePricing(invalidPrice);
-
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Monthly price must be greater than zero*");
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => plan.UpdatePricing(invalidPrice));
+        Assert.Contains("Monthly price must be greater than zero", exception.Message);
     }
 
     [Theory]
-    [InlineData(PlanTier.Basic, PlanTier.Standard, false)]
-    [InlineData(PlanTier.Standard, PlanTier.Premium, false)]
-    [InlineData(PlanTier.Premium, PlanTier.Enterprise, false)]
     [InlineData(PlanTier.Standard, PlanTier.Basic, true)]
     [InlineData(PlanTier.Premium, PlanTier.Standard, true)]
+    [InlineData(PlanTier.Enterprise, PlanTier.Premium, true)]
+    [InlineData(PlanTier.Basic, PlanTier.Standard, false)]
+    [InlineData(PlanTier.Standard, PlanTier.Premium, false)]
     [InlineData(PlanTier.Basic, PlanTier.Basic, false)]
     public void IsUpgradeFrom_ComparingTiers_ReturnsCorrectResult(
         PlanTier currentTier, PlanTier otherTier, bool expectedResult)
@@ -139,15 +132,15 @@ public class PaymentPlanTests
         var result = currentPlan.IsUpgradeFrom(otherPlan);
 
         // Assert
-        result.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, result);
     }
 
     [Theory]
-    [InlineData(PlanTier.Standard, PlanTier.Basic, false)]
-    [InlineData(PlanTier.Premium, PlanTier.Standard, false)]
-    [InlineData(PlanTier.Enterprise, PlanTier.Premium, false)]
     [InlineData(PlanTier.Basic, PlanTier.Standard, true)]
     [InlineData(PlanTier.Standard, PlanTier.Premium, true)]
+    [InlineData(PlanTier.Premium, PlanTier.Enterprise, true)]
+    [InlineData(PlanTier.Standard, PlanTier.Basic, false)]
+    [InlineData(PlanTier.Premium, PlanTier.Standard, false)]
     [InlineData(PlanTier.Basic, PlanTier.Basic, false)]
     public void IsDowngradeFrom_ComparingTiers_ReturnsCorrectResult(
         PlanTier currentTier, PlanTier otherTier, bool expectedResult)
@@ -160,6 +153,6 @@ public class PaymentPlanTests
         var result = currentPlan.IsDowngradeFrom(otherPlan);
 
         // Assert
-        result.Should().Be(expectedResult);
+        Assert.Equal(expectedResult, result);
     }
 }

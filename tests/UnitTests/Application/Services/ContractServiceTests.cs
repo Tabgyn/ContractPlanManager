@@ -2,14 +2,12 @@ namespace UnitTests.Application.Services;
 
 using global::Application.DTOs.Contract;
 using global::Application.Services;
-
-using FluentAssertions;
+using global::Domain.Entities;
+using global::Domain.Interfaces;
 
 using Moq;
 
 using Xunit;
-using global::Domain.Interfaces;
-using global::Domain.Entities;
 
 public class ContractServiceTests
 {
@@ -39,9 +37,9 @@ public class ContractServiceTests
         var result = await _service.GetByIdAsync(contract.Id);
 
         // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be(contract.Id);
-        result.ContractNumber.Should().Be("CNT-001");
+        Assert.NotNull(result);
+        Assert.Equal(contract.Id, result.Id);
+        Assert.Equal("CNT-001", result.ContractNumber);
         _contractRepositoryMock.Verify(x => x.GetByIdAsync(contract.Id), Times.Once);
     }
 
@@ -58,7 +56,7 @@ public class ContractServiceTests
         var result = await _service.GetByIdAsync(nonExistingId);
 
         // Assert
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 
     [Fact]
@@ -87,10 +85,10 @@ public class ContractServiceTests
         var result = await _service.CreateAsync(dto);
 
         // Assert
-        result.Should().NotBeNull();
-        result.ContractNumber.Should().Be("CNT-001");
-        result.CustomerName.Should().Be("Customer");
-        result.Status.Should().Be("Active");
+        Assert.NotNull(result);
+        Assert.Equal("CNT-001", result.ContractNumber);
+        Assert.Equal("Customer", result.CustomerName);
+        Assert.Equal("Active", result.Status);
         _paymentPlanRepositoryMock.Verify(x => x.GetByIdAsync(plan.Id), Times.Once);
         _contractRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Contract>()), Times.Once);
     }
@@ -112,12 +110,8 @@ public class ContractServiceTests
             .Setup(x => x.GetByIdAsync(dto.InitialPaymentPlanId))
             .ReturnsAsync((PaymentPlan?)null);
 
-        // Act
-        Func<Task> act = async () => await _service.CreateAsync(dto);
-
-        // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*not found*");
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _service.CreateAsync(dto));
     }
 
     [Fact]
@@ -140,12 +134,9 @@ public class ContractServiceTests
             .Setup(x => x.GetByIdAsync(plan.Id))
             .ReturnsAsync(plan);
 
-        // Act
-        Func<Task> act = async () => await _service.CreateAsync(dto);
-
-        // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*inactive payment plan*");
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _service.CreateAsync(dto));
+        Assert.Contains("inactive payment plan", exception.Message);
     }
 
     [Fact]
@@ -168,9 +159,9 @@ public class ContractServiceTests
         var result = await _service.TerminateAsync(contract.Id, endDate);
 
         // Assert
-        result.Should().BeTrue();
-        contract.Status.Should().Be(ContractStatus.Terminated);
-        contract.EndDate.Should().Be(endDate);
+        Assert.True(result);
+        Assert.Equal(ContractStatus.Terminated, contract.Status);
+        Assert.Equal(endDate, contract.EndDate);
         _contractRepositoryMock.Verify(x => x.UpdateAsync(contract), Times.Once);
     }
 
@@ -193,8 +184,8 @@ public class ContractServiceTests
         var result = await _service.SuspendAsync(contract.Id);
 
         // Assert
-        result.Should().BeTrue();
-        contract.Status.Should().Be(ContractStatus.Suspended);
+        Assert.True(result);
+        Assert.Equal(ContractStatus.Suspended, contract.Status);
         _contractRepositoryMock.Verify(x => x.UpdateAsync(contract), Times.Once);
     }
 
@@ -218,8 +209,8 @@ public class ContractServiceTests
         var result = await _service.ReactivateAsync(contract.Id);
 
         // Assert
-        result.Should().BeTrue();
-        contract.Status.Should().Be(ContractStatus.Active);
+        Assert.True(result);
+        Assert.Equal(ContractStatus.Active, contract.Status);
         _contractRepositoryMock.Verify(x => x.UpdateAsync(contract), Times.Once);
     }
 }

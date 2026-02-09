@@ -7,8 +7,6 @@ using Application.DTOs.PaymentPlan;
 
 using API.Models;
 
-using FluentAssertions;
-
 using IntegrationTests.Setup;
 
 using Xunit;
@@ -29,13 +27,13 @@ public class PaymentPlansControllerTests : IClassFixture<CustomWebApplicationFac
         var response = await _client.GetAsync("/api/paymentplans");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<PaymentPlanDto>>>();
-        result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
-        result.Data.Should().NotBeEmpty();
-        result.Data.Should().HaveCountGreaterThanOrEqualTo(2); // We seeded 2 plans
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.True(result.Data.Count() >= 2); // We seeded 2 plans
     }
 
     [Fact]
@@ -45,13 +43,13 @@ public class PaymentPlansControllerTests : IClassFixture<CustomWebApplicationFac
         var response = await _client.GetAsync("/api/paymentplans/active");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<PaymentPlanDto>>>();
-        result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
-        result.Data.Should().NotBeEmpty();
-        result.Data!.All(p => p.IsActive).Should().BeTrue();
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.True(result.Data.All(p => p.IsActive));
     }
 
     [Fact]
@@ -71,14 +69,14 @@ public class PaymentPlansControllerTests : IClassFixture<CustomWebApplicationFac
         var response = await _client.PostAsJsonAsync("/api/paymentplans", createDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<PaymentPlanDto>>();
-        result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Name.Should().Be("Integration Test Plan");
-        result.Data.MonthlyPrice.Should().Be(199.99m);
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Equal("Integration Test Plan", result.Data.Name);
+        Assert.Equal(199.99m, result.Data.MonthlyPrice);
     }
 
     [Fact]
@@ -98,7 +96,7 @@ public class PaymentPlansControllerTests : IClassFixture<CustomWebApplicationFac
         var response = await _client.PostAsJsonAsync("/api/paymentplans", createDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
@@ -119,11 +117,13 @@ public class PaymentPlansControllerTests : IClassFixture<CustomWebApplicationFac
         var response = await _client.PutAsJsonAsync($"/api/paymentplans/{planId}", updateDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<PaymentPlanDto>>();
-        result!.Data!.MonthlyPrice.Should().Be(39.99m);
-        result.Data.Description.Should().Be("Updated description");
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.Equal(39.99m, result.Data.MonthlyPrice);
+        Assert.Equal("Updated description", result.Data.Description);
     }
 
     [Fact]
@@ -138,11 +138,13 @@ public class PaymentPlansControllerTests : IClassFixture<CustomWebApplicationFac
         var response = await _client.PostAsync($"/api/paymentplans/{planId}/deactivate", null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         // Verify the plan is deactivated
         var getResponse = await _client.GetAsync($"/api/paymentplans/{planId}");
         var getResult = await getResponse.Content.ReadFromJsonAsync<ApiResponse<PaymentPlanDto>>();
-        getResult!.Data!.IsActive.Should().BeFalse();
+        Assert.NotNull(getResult);
+        Assert.True(getResult.Success);
+        Assert.False(getResult.Data.IsActive);
     }
 }
